@@ -59,9 +59,16 @@ jobs:
             --query taskDefinition \
             > task-definition.json
 
+      - name: Remove unsupported fields from task definition
+        run: |
+          cat task-definition.json | \
+          python3 -c "import json,sys; d=json.load(sys.stdin); [d.pop(k,None) for k in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy','enableFaultInjection']]; print(json.dumps(d))" \
+          > task-definition-clean.json
+          mv task-definition-clean.json task-definition.json
+
       - name: Update task definition with new image
         id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v2
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
           container-name: ${{ secrets.CONTAINER_NAME }}
