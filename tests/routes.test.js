@@ -1,4 +1,13 @@
 const request = require('supertest');
+
+// Mock the database before importing app
+jest.mock('../src/db', () => ({
+  pool: {
+    query: jest.fn().mockResolvedValue({ rows: [] })
+  },
+  initDB: jest.fn().mockResolvedValue(true)
+}));
+
 const app = require('../src/app');
 
 describe('URL Shortener API', () => {
